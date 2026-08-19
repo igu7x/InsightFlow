@@ -101,7 +101,7 @@ mysql --version
 ## 2. Clonar o repositório
 
 ```powershell
-git clone https://github.com/Abnerrum/InsightFlow-IA.git
+git clone https://github.com/igu7x/InsightFlow.git
 cd InsightFlow-IA
 ```
 
@@ -433,8 +433,3 @@ uvicorn app.main:app --reload --port 8001
 
 Este projeto é um MVP acadêmico e de portfólio. Antes de utilizar dados reais de uma empresa, revise as configurações de segurança, privacidade, infraestrutura, acesso ao banco e tratamento dos dados.
 
-## Autor
-
-Desenvolvido por **Abner Luiz**.
-
-GitHub: `Abnerrum`
