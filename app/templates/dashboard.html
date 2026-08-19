@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<form class="panel filter-bar mb-4" method="get" action="/dashboard">
+  <div class="row g-3 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label small fw-bold" for="dataInicial">Data inicial</label>
+      <input type="date" class="form-control" id="dataInicial" name="data_inicial" value="{{ filtro_data_inicial }}">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label small fw-bold" for="dataFinal">Data final</label>
+      <input type="date" class="form-control" id="dataFinal" name="data_final" value="{{ filtro_data_final }}">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label small fw-bold" for="departamento">Departamento</label>
+      <select class="form-select" id="departamento" name="departamento">
+        <option value="">Todos</option>
+        {% for nome in departamentos_disponiveis %}
+        <option value="{{ nome }}" {% if nome == filtro_departamento %}selected{% endif %}>{{ nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+      <button class="btn btn-primary flex-grow-1" type="submit"><i class="bi bi-funnel me-1"></i>Aplicar filtros</button>
+      {% if filtros_ativos %}<button class="btn btn-outline-secondary" type="button" id="limparFiltros" title="Limpar filtros"><i class="bi bi-x-lg"></i></button>{% endif %}
+    </div>
+  </div>
+  {% if filtros_ativos %}
+  <div class="small text-secondary mt-3"><i class="bi bi-info-circle me-1"></i>Exibindo dados filtrados. Os indicadores e gráficos abaixo consideram apenas os registros selecionados.</div>
+  {% endif %}
+</form>
+
+<div id="dashboardData" hidden
+     data-departamentos='{{ chart_departamentos|tojson }}'
+     data-totais='{{ chart_totais|tojson }}'
+     data-atrasados='{{ chart_atrasados|tojson }}'
+     data-status='{{ chart_status|tojson }}'></div>
+
+<div class="row g-3 mb-4">
+<div class="col-sm-6 col-xl-3"><div class="panel kpi-card"><div class="d-flex justify-content-between"><div><div class="kpi-label">TOTAL DE REGISTROS</div><div class="kpi-value">{{ total }}</div><div class="kpi-trend">Base consolidada</div></div><div class="kpi-icon bg-soft-primary"><i class="bi bi-database-fill"></i></div></div></div></div>
+<div class="col-sm-6 col-xl-3"><div class="panel kpi-card"><div class="d-flex justify-content-between"><div><div class="kpi-label">CONCLUÍDOS</div><div class="kpi-value">{{ concluidos }}</div><div class="kpi-trend">{{ taxa_conclusao }}% de conclusão</div></div><div class="kpi-icon bg-soft-success"><i class="bi bi-check-circle-fill"></i></div></div></div></div>
+<div class="col-sm-6 col-xl-3"><div class="panel kpi-card"><div class="d-flex justify-content-between"><div><div class="kpi-label">ATRASADOS</div><div class="kpi-value">{{ atrasados }}</div><div class="kpi-trend">Requer atenção</div></div><div class="kpi-icon bg-soft-danger"><i class="bi bi-exclamation-triangle-fill"></i></div></div></div></div>
+<div class="col-sm-6 col-xl-3"><div class="panel kpi-card"><div class="d-flex justify-content-between"><div><div class="kpi-label">VALOR TOTAL</div><div class="kpi-value">R$ {{ "%.2f"|format(valor_total) }}</div><div class="kpi-trend">Somatório da base</div></div><div class="kpi-icon bg-soft-warning"><i class="bi bi-cash-stack"></i></div></div></div></div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-xl-8"><div class="panel p-4 h-100"><h2 class="section-title">Desempenho por departamento</h2>{% if por_departamento %}<canvas id="departamentosChart" height="105"></canvas>{% else %}<p class="text-secondary text-center py-5 mb-0">Nenhum dado para exibir.</p>{% endif %}</div></div>
+  <div class="col-xl-4"><div class="panel p-4 h-100"><h2 class="section-title">Distribuição por status</h2>{% if total %}<canvas id="statusChart" height="210"></canvas>{% else %}<p class="text-secondary text-center py-5 mb-0">Nenhum dado para exibir.</p>{% endif %}</div></div>
+</div>
+
+<div class="row g-4"><div class="col-xl-8"><div class="panel p-4"><div class="d-flex justify-content-between mb-3"><h2 class="section-title">Registros recentes</h2><a href="/importacoes" class="btn btn-sm btn-outline-primary">Nova importação</a></div><div class="table-responsive"><table class="table align-middle"><thead><tr><th>Responsável</th><th>Departamento</th><th>Status</th><th>Valor</th></tr></thead><tbody>{% for registro, departamento in recentes %}<tr><td><strong>{{ registro.responsavel }}</strong><div class="small text-secondary">{{ registro.descricao }}</div></td><td>{{ departamento }}</td><td><span class="badge badge-status {% if registro.status == 'Concluído' %}text-bg-success{% elif registro.status == 'Atrasado' %}text-bg-danger{% else %}text-bg-warning{% endif %}">{{ registro.status }}</span></td><td>R$ {{ "%.2f"|format(registro.valor|float) }}</td></tr>{% else %}<tr><td colspan="4" class="text-center py-5">{% if filtros_ativos %}Nenhum registro corresponde aos filtros aplicados.{% else %}Importe uma planilha para preencher o dashboard.{% endif %}</td></tr>{% endfor %}</tbody></table></div></div></div><div class="col-xl-4"><div class="panel p-4 h-100"><h2 class="section-title">Pontos de atenção</h2><div class="alert {% if atrasados %}alert-danger{% else %}alert-success{% endif %}"><strong>{{ atrasados }} registro(s) atrasado(s)</strong><div class="small">{% if atrasados %}Gere um plano de ação com a IA.{% else %}Nenhum atraso na seleção atual.{% endif %}</div></div><div class="alert alert-info"><strong>Taxa de conclusão: {{ taxa_conclusao }}%</strong></div><a href="/assistente" class="btn btn-primary w-100"><i class="bi bi-stars me-1"></i>Analisar com ChatGPT</a></div></div></div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/static/js/dashboard.js"></script>
+{% endblock %}

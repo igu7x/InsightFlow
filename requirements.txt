@@ -1,0 +1,16 @@
+# ATENCAO: o teto de versao do fastapi/starlette e obrigatorio.
+# A partir do Starlette 1.0 a assinatura antiga
+# TemplateResponse("pagina.html", {"request": request, ...})
+# foi removida, o que quebra todas as paginas HTML do projeto.
+fastapi>=0.115,<0.120
+starlette<1.0
+uvicorn[standard]>=0.30
+sqlalchemy>=2.0
+pymysql>=1.1
+pydantic-settings>=2.6
+python-multipart>=0.0.12
+jinja2>=3.1
+pandas>=2.2
+openpyxl>=3.1
+openai>=1.50
+cryptography>=43.0

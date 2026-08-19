@@ -1,0 +1,12 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.idea/
+.vscode/
+
+# Relatorios gerados pela IA: contem analises dos dados importados
+obsidian-vault/Relatorios/*.md
+
+# Backups criados durante a correcao do ambiente
+requirements.txt.original
